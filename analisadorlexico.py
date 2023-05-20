@@ -28,19 +28,18 @@ def getToken(file, token):
     look_ahead = False
     nro_token = 1
     strAux = ''
-    char = file.read(1)
     
-    while 1: 
+    while 1:
         if look_ahead is False:
             char = file.read(1)
             coluna +=1
         strAux = strAux + str(char)
-        look_ahead == False
+        look_ahead = False
         
         #### Estado Inicial ####
         
         if estado == 'A':
-            if char not in CHAR_RESERVED:
+            if char not in CHAR_RESERVED and char not in SPECIAL_CHAR:
                 estado = 'C'
                 
             elif char == 'a':
@@ -82,8 +81,14 @@ def getToken(file, token):
             elif char == '^':
                 estado = 'P'
 
-            elif char == '>':
+            elif char == '=':
                 estado = 'Q'
+
+            elif char == '<':
+                estado = 'J'
+
+            elif char == '>':
+                estado = 'R'
             
             elif char == '.':
                 estado = 'ERR'
@@ -416,13 +421,13 @@ def getToken(file, token):
         ######## Estado aceitação de ID ###########    
         elif estado == 'AC':
             if nro_token == token:
-                    nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
-                    return ('ID', nro_elem, (linha, coluna))
+                nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                return ('ID', nro_elem, (linha, coluna))
             else:
-                    nro_token +=1
-                    strAux = ''
-                    estado = 'A'
-                    look_ahead = True
+                nro_token +=1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
         
         #########################
 

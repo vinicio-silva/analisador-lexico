@@ -16,7 +16,7 @@ def main():
         if token == 'EOF':
             break
 
-        print("Nome: " + str(token) + ', ' + 'Atributo: ' + str(token))
+        print("Nome: " + str(token) + ', ' + 'Atributo: ' + str(atributo))
         cadeia = cadeia + [(token, atributo)]
         i += 1
         arquivo.seek(0,0)
