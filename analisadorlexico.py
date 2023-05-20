@@ -7,7 +7,6 @@ LETRA_UPPER = list(string.ascii_uppercase)
 NUMBER = [str(num) for num in range(9)]
 CHAR_RESERVED = ['a', 'c', 'e', 'f', 'i', 'r', 's']
 ID = LETRA_UPPER + LETRA_LOWER + NUMBER + ['_']
-SPECIAL_CHAR = ['<', '-', '+', '/', '*', '^', '>', '=', '.', ':', ',', ';', '(', ')', '{', '}', ' ', "'"]
 
 def addTable(char, table):   # Função para inserir na tabela de simbolos
     nro_elem = 1
@@ -19,8 +18,6 @@ def addTable(char, table):   # Função para inserir na tabela de simbolos
 
     table.writelines(char+"\n")
     return nro_elem
-
-
 def getToken(file, token):
     estado = 'A'
     coluna = 0
@@ -84,9 +81,6 @@ def getToken(file, token):
             elif char == '=':
                 estado = 'Q'
 
-            elif char == '<':
-                estado = 'J'
-
             elif char == '>':
                 estado = 'R'
             
@@ -118,8 +112,6 @@ def getToken(file, token):
                 estado = 'Z'
 
             elif char == ' ' or char == '\n' or char == '\t':
-                if char == '\n':
-                    linha += 1
                 estado = 'AB'
             
             elif char == "'":
@@ -128,7 +120,7 @@ def getToken(file, token):
             else:
                 estado = 'ERR'
                 
-        #########################
+        ############ ESTADO B #############
            
         elif estado == 'B':
             if char == 't':
@@ -138,14 +130,16 @@ def getToken(file, token):
                 estado = 'C'            
             else:
                 estado = 'AC'
-        #########################
+                look_ahead = True
+        ############ ESTADO C #############
             
         elif estado == 'C':
-            if char in ID:
-                estado = 'C'
-            else:
+            if char not in ID:
                 estado = 'AC'
-        #########################
+                look_ahead = True
+            else:
+                estado = 'C'
+        ########### ESTADO D ##############
             
         elif estado == 'D':
             if char == 'h':
@@ -154,8 +148,9 @@ def getToken(file, token):
                 estado = 'C'
             else:
                 estado = 'AC'
+                look_ahead = True
             
-        #########################
+        ############ ESTADO E #############
             
         elif estado == 'E':
             if char == 'n':
@@ -164,8 +159,9 @@ def getToken(file, token):
                 estado = 'C'            
             else:
                 estado = 'AC'
+                look_ahead = True
                 
-        #########################
+        ############ ESTADO F #############
                     
         elif estado == 'F':            
             if char == 'a':
@@ -178,8 +174,9 @@ def getToken(file, token):
                 estado = 'C'            
             else:
                 estado = 'AC'
+                look_ahead = True
             
-        #########################
+        ########### ESTADO G ##############
             
         elif estado == 'G':            
             if char == 'n':
@@ -188,8 +185,9 @@ def getToken(file, token):
                 estado = 'C'
             else:
                 estado = 'AC'
+                look_ahead = True
 
-        #########################
+        ############# ESTADO H ############
             
         elif estado == 'H':
             if char == 'e':
@@ -197,9 +195,10 @@ def getToken(file, token):
             elif char in ID:
                 estado = 'C'
             else:
-                estado = 'AC' 
+                estado = 'AC'
+                look_ahead = True 
             
-        #########################
+        ############# ESTADO I ############
             
         elif estado == 'I':            
             if char == 'e':
@@ -207,9 +206,10 @@ def getToken(file, token):
             elif char in ID:
                 estado = 'C'
             else:
-                estado = 'AC' 
+                estado = 'AC'
+                look_ahead = True 
             
-        #########################
+        ############ ESTADO J #############
             
         elif estado == 'J':
             if char == '>':
@@ -225,7 +225,7 @@ def getToken(file, token):
                     estado = 'A'
                     look_ahead = True
             
-        #########################
+        ############# ESTADO L ############
             
 
         elif estado == 'L':
@@ -236,7 +236,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
         
-        #########################
+        ############# ESTADO M ############
             
         elif estado == 'M':            
             if nro_token == token:
@@ -246,22 +246,20 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
         
-        #########################
+        ############ ESTADO N #############
             
         elif estado == 'N':
-            if nro_token == token:
-                return ('Operador Aritimético', '/', (linha, coluna))
+            if char ==  '*':
+                estado = 'AQ'
             else:
-                if char != '*':
-                    estado = 'N'
+                if nro_token == token:
+                    return ('Operador Aritimético', '/', (linha, coluna))
                 else:
-                    estado = 'AQ'
-                nro_token += 1
-                strAux = ''
-                estado = 'A'
-                look_ahead = True                
+                    nro_token += 1
+                    strAux = ''
+                    estado = 'A'                      
         
-        #########################
+        ########### ESTADO O ##############
             
         elif estado == 'O':            
             if nro_token == token:
@@ -271,7 +269,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
             
-        #########################
+        ############ ESTADO P #############
             
         elif estado == 'P':           
             if nro_token == token:
@@ -281,14 +279,14 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A' 
             
-        #########################
+        ############ ESTADO Q #############
             
         elif estado == 'Q':
             if char != '=':
                 estado = 'ATT'
             else:                
                 estado = 'AO'
-        #########################
+        ############# ESTADO ATT ############
         
         elif estado == 'ATT':
             if nro_token == token:
@@ -300,7 +298,7 @@ def getToken(file, token):
                 look_ahead = True
                   
         
-        #########################
+        ############ ESTADO R #############
             
         elif estado == 'R':            
             if char == '=':
@@ -313,7 +311,7 @@ def getToken(file, token):
                     strAux = ''
                     estado = 'A' 
                     look_ahead = True
-        #########################
+        ############# ESTADO S ############
             
         elif estado == 'S':
             if nro_token == token:
@@ -323,7 +321,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A' 
         
-        #########################
+        ############# ESTADO T ############
             
         elif estado == 'T':
             if nro_token == token:
@@ -333,7 +331,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A' 
         
-        #########################
+        ############# ESTADO U ############
             
         elif estado == 'U':
             if nro_token == token:
@@ -343,7 +341,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A' 
         
-        #########################
+        ############# ESTADO V ############
             
         elif estado == 'V':            
             if nro_token == token:
@@ -353,7 +351,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
         
-        #########################
+        ############# ESTADO W ############
             
         elif estado == 'W':           
             if nro_token == token:
@@ -363,7 +361,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
         
-        #########################
+        ############# ESTADO X ############
             
         elif estado == 'X':            
             if nro_token == token:
@@ -373,7 +371,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A' 
         
-        #########################
+        ############# ESTADO Y ############
             
         elif estado == 'Y':            
             if nro_token == token:
@@ -383,7 +381,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A' 
         
-        #########################
+        ############# ESTADO Z ############
             
         elif estado == 'Z':
 
@@ -396,16 +394,17 @@ def getToken(file, token):
                 estado = 'Z'
             else:
                estado = 'NINT'
+               look_ahead = True
 
 
         #########################
         
         elif estado == 'AA':
             if char in LETRA_LOWER or char in LETRA_UPPER:
-                estado == 'AT'
+                estado = 'AT'
 
             else:
-                estado == 'ERR'
+                estado = 'ERR'
             
         #########################
 
@@ -413,10 +412,13 @@ def getToken(file, token):
             if char == ' ' or char == '\n' or char == '\t':
                 if char == '\n':
                     linha += 1
-                estado == 'AB'
+                    coluna = 0
+                estado = 'A'
 
             else:
-                estado == 'AU'
+                strAux = ''
+                estado = 'A'
+                look_ahead = True 
                 
         ######## Estado aceitação de ID ###########    
         elif estado == 'AC':
@@ -433,49 +435,53 @@ def getToken(file, token):
 
         elif estado == 'AD':
             if char == 'e' or char == 'E':
-                estado == 'AV'
+                estado = 'AV'
                 
-            elif char in SPECIAL_CHAR:
-                estado == 'AC'
+            elif char not in ID:
+                estado = 'AC'
+                look_ahead = True
 
             else:
-                estado == 'C'
+                estado = 'C'
                 
         #########################
 
         elif estado == 'AE':
-            if char in SPECIAL_CHAR:
-                estado == 'AC'
+            if char not in ID:
+                estado = 'AC'
+                look_ahead = True
 
             elif char == 'a' or char == 'A':
-                estado == 'AW'
+                estado = 'AW'
 
             else:
-                estado == 'C'
+                estado = 'C'
                 
         #########################
 
         elif estado == 'AF':
             if char == 'Q' or char == 'q':
-                estado == 'AY'
+                estado = 'AY'
 
             elif char == 'T' or char == 't':
-                estado == 'AX'
+                estado = 'AX'
 
-            elif char in SPECIAL_CHAR:
-                estado == 'AC'
+            elif char not in ID:
+                estado = 'AC'
+                look_ahead = True
 
             else:
-                estado == 'C'
+                estado = 'C'
                 
         #########################
       
         elif estado == 'AG':
             if char == 'C' or char == 'c':
-                estado == 'AZ'
+                estado = 'AZ'
 
-            elif char in SPECIAL_CHAR :
+            elif char not in ID :
                 estado = 'AC'
+                look_ahead = True
 
             else:
                 estado = 'C'
@@ -484,61 +490,65 @@ def getToken(file, token):
 
         elif estado == 'AH':
             if char == 'o' or char == 'O':
-                estado == 'BA'
+                estado = 'BA'
                 
-            elif char in SPECIAL_CHAR :
-                estado == 'AC'
+            elif char not in ID :
+                estado = 'AC'
+                look_ahead = True
 
             else:
-                estado == 'C'
+                estado = 'C'
             
         #########################
         
         elif estado == 'AI':
             if char == 'n' or char == 'N':
-                estado == 'BB'
+                estado = 'BB'
 
-            elif char in SPECIAL_CHAR:
-                estado == 'AC'
+            elif char not in ID:
+                estado = 'AC'
+                look_ahead = True
                 
             else:
-                estado == 'C'
+                estado = 'C'
                 
         #########################
            
         elif estado == 'AJ':
             if char == 't' or char == 'T':
-                estado == 'BC'
+                estado = 'BC'
 
-            elif char in SPECIAL_CHAR:
-                estado == 'AC'
+            elif char not in ID:
+                estado = 'AC'
+                look_ahead = True
                 
             else:
-                estado == 'C'
+                estado = 'C'
                 
         #########################
 
         elif estado == 'AK':
             if char == 'P' or char == 'p':
-                estado == 'BD'
+                estado = 'BD'
 
-            elif char in SPECIAL_CHAR :
-                estado == 'AC'
+            elif char not in ID :
+                estado = 'AC'
+                look_ahead = True
                 
             else:
-                estado == 'C'
+                estado = 'C'
                 
         #########################
 
         elif estado == 'AL':
             if char == 'N' or char == 'n':
-                estado == 'BE'
+                estado = 'BE'
 
-            elif char in SPECIAL_CHAR:
-                estado == 'SE'
+            elif char not in ID:
+                estado = 'SE'
                 
             else:
-                estado == 'C'
+                estado = 'C'
                 
         ########### RELOPS ###########
     
@@ -549,6 +559,7 @@ def getToken(file, token):
                 nro_token += 1
                 strAux = ''
                 estado = 'A'
+                look_ahead = True
             
         elif estado == 'AN':            
             if nro_token == token:
@@ -556,7 +567,8 @@ def getToken(file, token):
             else:
                 nro_token += 1
                 strAux = ''
-                estado = 'A'  
+                estado = 'A'
+                look_ahead = True
             
             
         elif estado == 'AO': 
@@ -579,27 +591,27 @@ def getToken(file, token):
             
         elif estado == 'AQ':
             if char == '*':
-                estado == 'BF'
+                estado ='BF'
             else:
-                estado == 'AQ'
+                estado = 'AQ'
                 
         #########################
             
         elif estado == 'AR':
             if char == '+' or char == '-':
-                estado == 'BG'
+                estado = 'BG'
 
             elif char in NUMBER:
-                estado == 'BH'
+                estado = 'BH'
 
             else:
-                estado == 'ERR'
+                estado = 'ERR'
 
         #########################
             
         elif estado == 'AS':
             if char in NUMBER:
-                estado == 'BI'
+                estado = 'BI'
 
             else:
                 estado = 'ERR'
@@ -608,77 +620,76 @@ def getToken(file, token):
         
         elif estado == 'AT':
             if char == "'":
-                estado == 'BJ'
+                estado = 'BJ'
 
             else:
-                estado == 'ERR'       
-                
-        #########################
-            
-        elif estado == 'AU':
-            pass
+                estado = 'ERR'       
         
         #########################
         
         elif estado == 'AV':
-            if char == SPECIAL_CHAR or char == '_':
-                estado == 'ATE'
+            if char not in ID or char == '_':
+                estado = 'ATE'
 
             else:
-                estado == 'C'
+                estado ='C'
 
         #########################
     
         elif estado == 'AW':
             if char == 'r' or char == 'R':
-                estado == 'BK'
+                estado = 'BK'
                 
-            elif char in SPECIAL_CHAR:
-                estado == 'AC'
+            elif char not in ID:
+                estado = 'AC'
+                look_ahead = True
 
             else:
-                estado == 'C'
+                estado = 'C'
 
         #########################
             
         elif estado == 'AX':
             if char == 'a' or char == 'A':
-                estado == 'BL'
+                estado = 'BL'
 
-            elif char in SPECIAL_CHAR:
-                estado == 'AC'
+            elif char not in ID:
+                estado = 'AC'
+                look_ahead = True
 
             else:
-                estado == 'C'
+                estado = 'C'
 
         #########################
             
         elif estado == 'AY':
             if char == 'u' or char == 'U':
-                estado == 'BM'
+                estado = 'BM'
 
-            elif char in SPECIAL_CHAR:
-                estado =='AC'
+            elif char not in ID:
+                estado ='AC'
                 
             else:
-                estado == 'C'
+                estado = 'C'
         #########################
             
         elif estado == 'AZ':
             if char == 'a' or char == 'A':
-                estado == 'BN'
-            elif char in SPECIAL_CHAR:
-                estado == 'AC'
+                estado = 'BN'
+            elif char not in ID:
+                estado = 'AC'
+                look_ahead = True
             else:
-                estado == 'C'
+                estado = 'C'
     
         #########################
             
         elif estado == 'BA':
             if char == 'a':
                 estado = 'BO'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
 
@@ -686,15 +697,16 @@ def getToken(file, token):
 
         elif estado == 'BB':
             if char == 'c':
-                estado = 'BO'
-            elif char in SPECIAL_CHAR:
+                estado = 'BP'
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
         #########################
 
         elif estado == 'BC':
-            if char in SPECIAL_CHAR:
+            if char not in ID:
                 estado = 'INT'
             else:
                 estado = 'C'
@@ -704,8 +716,9 @@ def getToken(file, token):
         elif estado == 'BD':
             if char == 'i':
                 estado = 'BQ'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
         #########################
@@ -713,8 +726,9 @@ def getToken(file, token):
         elif estado == 'BE':
             if char == 'a':
                 estado = 'BR'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
                 
@@ -741,20 +755,20 @@ def getToken(file, token):
                 estado = 'BH'
             else:
                 estado = 'EXP'
+                look_ahead = True
                 
         #########################
         
         elif estado == 'BI':
             if char in NUMBER:
                 estado = 'BI'
-            elif char in [' ', "'"]:
-                estado = 'EXP'
             elif char == '.':
                 estado = 'ERR'
-            elif char == 'e':
+            elif char == 'E':
                 estado = 'AR'
             else:
-                estado = 'FRAC'         
+                estado = 'FRAC'
+                look_ahead = True       
 
         #########################
         
@@ -771,7 +785,7 @@ def getToken(file, token):
         #########################
         
         elif estado == 'BK':
-            if char in SPECIAL_CHAR:
+            if char not in ID:
                 estado = 'CHAR'
             else:
                 estado = 'C'
@@ -781,8 +795,9 @@ def getToken(file, token):
         elif estado == 'BL':
             if char == 'o':
                 estado = 'BT'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
                 
@@ -791,15 +806,16 @@ def getToken(file, token):
         elif estado == 'BM':
             if char == 'a':
                 estado = 'BU'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
 
         #########################
 
         elif estado == 'BN':
-            if char in SPECIAL_CHAR:
+            if char not in ID:
                 estado = 'FACA'
             else:
                 estado = 'C'
@@ -809,8 +825,9 @@ def getToken(file, token):
         elif estado == 'BO':
             if char == 't':
                 estado = 'BV'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
                 
@@ -819,8 +836,9 @@ def getToken(file, token):
         elif estado == 'BP':
             if char == 't':
                 estado = 'BW'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
                 
@@ -829,8 +847,9 @@ def getToken(file, token):
         elif estado == 'BQ':
             if char == 't':
                 estado = 'BX'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
         #########################
@@ -838,8 +857,9 @@ def getToken(file, token):
         elif estado == 'BR':
             if char == 'o':
                 estado = 'BY'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
         #########################
@@ -847,14 +867,15 @@ def getToken(file, token):
         elif estado == 'BS':
             if char == 't':
                 estado = 'CB'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
         #########################
         
         elif estado == 'BT':
-            if char in SPECIAL_CHAR:
+            if char not in ID:
                 estado = 'ENTAO'
             else:
                 estado = 'C'
@@ -863,14 +884,15 @@ def getToken(file, token):
         elif estado == 'BU':
             if char == 'n':
                 estado = 'BS'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
         #########################
         
         elif estado == 'BV':
-            if char in SPECIAL_CHAR:
+            if char not in ID:
                 estado = 'FLOAT'
             else:
                 estado = 'C'
@@ -880,8 +902,9 @@ def getToken(file, token):
         elif estado == 'BW':
             if char == 'i':
                 estado = 'BZ'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
                 
@@ -890,15 +913,16 @@ def getToken(file, token):
         elif estado == 'BX':
             if char == 'a':
                 estado = 'CA'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
                 
         #########################
         
         elif estado == 'BY':
-            if char in SPECIAL_CHAR:
+            if char not in ID:
                 estado = 'SENAO'
             else:
                 estado = 'C'
@@ -908,8 +932,9 @@ def getToken(file, token):
         elif estado == 'BZ':
             if char == 'o':
                 estado = 'CC'
-            elif char in SPECIAL_CHAR:
+            elif char not in ID:
                 estado = 'AC'
+                look_ahead = True
             else:
                 estado = 'C'
         #########################
@@ -933,6 +958,7 @@ def getToken(file, token):
                 
             else:
                 estado = 'AC'
+                look_ahead = True
 
         #########################
             
@@ -946,6 +972,7 @@ def getToken(file, token):
                 
             else:
                 estado = 'AC'
+                look_ahead = True
 
             
         #########################
@@ -974,7 +1001,19 @@ def getToken(file, token):
             else:
                 nro_token += 1
                 strAux = ''
-                estado = 'A' 
+                estado = 'A'
+                look_ahead = True 
+        
+        #########################
+        
+        elif estado == 'FLOAT':
+            if nro_token == token:
+                return ('float', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True 
         
         #########################
         
@@ -986,11 +1025,12 @@ def getToken(file, token):
                 
         elif estado == 'CHAR':
             if nro_token == token:
-                return ('faca', NULL, (linha, coluna))
+                return ('char', NULL, (linha, coluna))
             else:
                 nro_token += 1
                 strAux = ''
-                estado = 'A' 
+                estado = 'A'
+                look_ahead = True 
         
         #########################
         elif estado == 'FACA':
@@ -999,7 +1039,8 @@ def getToken(file, token):
             else:
                 nro_token += 1
                 strAux = ''
-                estado = 'A' 
+                estado = 'A'
+                look_ahead = True 
         
         #########################    
            
@@ -1009,7 +1050,8 @@ def getToken(file, token):
             else:
                 nro_token += 1
                 strAux = ''
-                estado = 'A' 
+                estado = 'A'
+                look_ahead = True 
         
         #########################
         
@@ -1019,7 +1061,8 @@ def getToken(file, token):
             else:
                 nro_token += 1
                 strAux = ''
-                estado = 'A' 
+                estado = 'A'
+                look_ahead = True 
 
         
         #########################
@@ -1044,9 +1087,10 @@ def getToken(file, token):
                 look_ahead = True
             
         ###########################
+        
         elif  estado == 'ATE':
             if nro_token == token:
-                return ('se', NULL, (linha, coluna))
+                return ('ate', NULL, (linha, coluna))
             else:
                 nro_token += 1
                 strAux = ''
