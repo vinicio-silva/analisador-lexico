@@ -6,30 +6,39 @@ LETRA_LOWER = list(string.ascii_lowercase)
 LETRA_UPPER = list(string.ascii_uppercase)
 NUMBER = [str(num) for num in range(9)]
 CHAR_RESERVED = ['a', 'c', 'e', 'f', 'i', 'r', 's']
-ID = LETRA_UPPER + LETRA_LOWER + NUMBER + '_'
-SPECIAL_CHAR = ['<', '-', '+', '/', '*', '^', '>', '=', '.', ':', ',', ';', '(', ')', '{', '}', ' ', "'", '$']
-
-def aceitacao():
-    return "Aceito"
-
+ID = LETRA_UPPER + LETRA_LOWER + NUMBER + ['_']
+SPECIAL_CHAR = ['<', '-', '+', '/', '*', '^', '>', '=', '.', ':', ',', ';', '(', ')', '{', '}', ' ', "'"]
 
 def addTable(char, table):   # Função para inserir na tabela de simbolos
-    nelem = 1
+    nro_elem = 1
     table.seek(0, 0)
     for linha in table:
         if (str(char+'\n')) == linha or str(char) == linha:
-            return nelem
-        nelem += 1
+            return nro_elem
+        nro_elem += 1
 
     table.writelines(char+"\n")
-    return nelem
+    return nro_elem
 
 
 def getToken(file, token):
     estado = 'A'
+    coluna = 0
+    linha = 1
+    look_ahead = False
+    nro_token = 1
+    strAux = ''
     char = file.read(1)
+    
     while 1: 
+        if look_ahead is False:
+            char = file.read(1)
+            coluna +=1
+        strAux = strAux + str(char)
+        look_ahead == False
+        
         #### Estado Inicial ####
+        
         if estado == 'A':
             if char not in CHAR_RESERVED:
                 estado = 'C'
@@ -103,7 +112,9 @@ def getToken(file, token):
             elif char in NUMBER:
                 estado = 'Z'
 
-            elif char == ' ':
+            elif char == ' ' or char == '\n' or char == '\t':
+                if char == '\n':
+                    linha += 1
                 estado = 'AB'
             
             elif char == "'":
@@ -111,7 +122,6 @@ def getToken(file, token):
                 
             else:
                 estado = 'ERR'
-
                 
         #########################
            
@@ -120,8 +130,7 @@ def getToken(file, token):
                 estado = 'AD'
             
             elif char in ID:
-                estado = 'C'
-            
+                estado = 'C'            
             else:
                 estado = 'AC'
         #########################
@@ -144,45 +153,34 @@ def getToken(file, token):
         #########################
             
         elif estado == 'E':
-
             if char == 'n':
                 estado = 'AF'
-
             elif char in ID: 
-                estado = 'C'
-            
+                estado = 'C'            
             else:
                 estado = 'AC'
-        #########################
-            
-        
-        elif estado == 'F':
-            
-            if char == 'a':
-                estado = 'AG'
                 
+        #########################
+                    
+        elif estado == 'F':            
+            if char == 'a':
+                estado = 'AG'                
             elif char == 'l':
                 estado = 'AH'
-
             elif char == 'u':
                 estado = 'AI'
-
             elif char in ID:
-                estado = 'C'
-            
+                estado = 'C'            
             else:
                 estado = 'AC'
             
         #########################
             
-        elif estado == 'G':
-            
+        elif estado == 'G':            
             if char == 'n':
                 estado = 'AJ'
-
             elif char in ID:
                 estado = 'C'
-
             else:
                 estado = 'AC'
 
@@ -191,112 +189,194 @@ def getToken(file, token):
         elif estado == 'H':
             if char == 'e':
                 estado = 'AK'
-
             elif char in ID:
                 estado = 'C'
-
             else:
                 estado = 'AC' 
             
         #########################
             
-        elif estado == 'I':
-            
+        elif estado == 'I':            
             if char == 'e':
                 estado = 'AL'
-
             elif char in ID:
                 estado = 'C'
-
             else:
                 estado = 'AC' 
             
         #########################
             
         elif estado == 'J':
-
             if char == '>':
                 estado = 'AN'
             elif char == '=':
-                estado = 'AM'
-            
-            else: 
-                return ('LT')
+                estado = 'AM'            
+            else:                 
+                if nro_token == token:
+                    return ('relop', 'LT', (linha, coluna))
+                else:
+                    nro_token += 1
+                    strAux = ''
+                    estado = 'A'
+                    look_ahead = True
             
         #########################
             
 
         elif estado == 'L':
-            return ('ESTADO FINAL')
+            if nro_token == token:
+                return ('Operador Aritimético', '-', (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
         
         #########################
             
-        elif estado == 'M':
-            return ('ESTADO FINAL')
+        elif estado == 'M':            
+            if nro_token == token:
+                return ('Operador Aritimético', '+', (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
         
         #########################
             
         elif estado == 'N':
-            return ('ESTADO FINAL')
+            if nro_token == token:
+                return ('Operador Aritimético', '/', (linha, coluna))
+            else:
+                if char != '*':
+                    estado = 'N'
+                else:
+                    estado = 'AQ'
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True                
         
         #########################
             
-        elif estado == 'O':
-            return ('ESTADO FINAL')
+        elif estado == 'O':            
+            if nro_token == token:
+                return ('Operador Aritimético', '*', (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
             
         #########################
             
-        elif estado == 'P':
-            return ('ESTADO FINAL')
+        elif estado == 'P':           
+            if nro_token == token:
+                return ('Operador Aritimético', '^', (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
             
         #########################
             
         elif estado == 'Q':
-            return ('ESTADO FINAL')
+            if char != '=':
+                estado = 'ATT'
+            else:                
+                estado = 'AO'
+        #########################
+        
+        elif estado == 'ATT':
+            if nro_token == token:
+                return ('Operador Aritmetico', '=', (linha, coluna)) 
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+                  
         
         #########################
             
-        elif estado == 'R':
-            
+        elif estado == 'R':            
             if char == '=':
-                estado = 'AP'
-            else:
-                return ('GT')
-            
+                estado = 'GE'
+            else:                
+                if nro_token == token:
+                    return ('relop', 'GT', (linha, coluna))
+                else:
+                    nro_token += 1
+                    strAux = ''
+                    estado = 'A' 
+                    look_ahead = True
         #########################
             
         elif estado == 'S':
-            return ('ESTADO FINAL')
+            if nro_token == token:
+                return (':', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
         
         #########################
             
         elif estado == 'T':
-            return ('ESTADO FINAL')
+            if nro_token == token:
+                return (';', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
         
         #########################
             
         elif estado == 'U':
-            return ('ESTADO FINAL')
+            if nro_token == token:
+                return (',', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
         
         #########################
             
-        elif estado == 'V':
-            return ('ESTADO FINAL')
+        elif estado == 'V':            
+            if nro_token == token:
+                return ('(', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
         
         #########################
             
-        elif estado == 'W':
-            return ('ESTADO FINAL')
+        elif estado == 'W':           
+            if nro_token == token:
+                return (')', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
         
         #########################
             
-        elif estado == 'X':
-            return ('ESTADO FINAL')
+        elif estado == 'X':            
+            if nro_token == token:
+                return ('{', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
         
         #########################
             
-        elif estado == 'Y':
-            return ('ESTADO FINAL')
+        elif estado == 'Y':            
+            if nro_token == token:
+                return ('}', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
         
         #########################
             
@@ -310,11 +390,10 @@ def getToken(file, token):
             elif char in NUMBER:
                 estado = 'Z'
             else:
-                return ('NRO INTEIRO', char)
-            
-            
+               estado = 'NINT'
+
+
         #########################
-            pass
         
         elif estado == 'AA':
             if char in LETRA_LOWER or char in LETRA_UPPER:
@@ -326,16 +405,24 @@ def getToken(file, token):
         #########################
 
         elif estado == 'AB':
-            if char == ' ':
+            if char == ' ' or char == '\n' or char == '\t':
+                if char == '\n':
+                    linha += 1
                 estado == 'AB'
 
             else:
                 estado == 'AU'
                 
-        #########################
-            
+        ######## Estado aceitação de ID ###########    
         elif estado == 'AC':
-            return aceitacao()
+            if nro_token == token:
+                    nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                    return ('ID', nro_elem, (linha, coluna))
+            else:
+                    nro_token +=1
+                    strAux = ''
+                    estado = 'A'
+                    look_ahead = True
         
         #########################
 
@@ -448,32 +535,46 @@ def getToken(file, token):
             else:
                 estado == 'C'
                 
-        #########################
+        ########### RELOPS ###########
     
         elif estado == 'AM':
-            return 'Less-Equal'
-        
-        #########################
+            if nro_token == token:
+                return ('relop', 'LE', (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
             
-        elif estado == 'AN':
-            return 'Not-Equal'
+        elif estado == 'AN':            
+            if nro_token == token:
+                return  ('relop', 'NE', (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'  
             
-        #########################
             
-        elif estado == 'AO':
-            return 'Equal'
+        elif estado == 'AO': 
+            if nro_token == token:
+                return  ('relop', 'EQ', (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
         
-        #########################
-        
-        elif estado == 'AP':
-            return 'Greater-Equal'
+        elif estado == 'GE':
+            if nro_token == token:
+                return ('relop', 'GE', (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
             
         #########################
             
         elif estado == 'AQ':
             if char == '*':
                 estado == 'BF'
-
             else:
                 estado == 'AQ'
                 
@@ -510,7 +611,7 @@ def getToken(file, token):
         #########################
             
         elif estado == 'AU':
-            return 'White-Space'
+            pass
         
         #########################
         
@@ -641,7 +742,7 @@ def getToken(file, token):
         elif estado == 'BI':
             if char in NUMBER:
                 estado = 'BI'
-            elif char in [' ', "'", '$']:
+            elif char in [' ', "'"]:
                 estado = 'EXP'
             elif char == '.':
                 estado = 'ERR'
@@ -653,7 +754,14 @@ def getToken(file, token):
         #########################
         
         elif estado == 'BJ':
-            return "Aceitação BJ"
+             if nro_token == token:
+                    nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                    return ('LETRA', nro_elem, (linha, coluna))
+             else:
+                    nro_token +=1
+                    strAux = ''
+                    estado = 'A'
+                    look_ahead = True
         
         #########################
         
@@ -809,7 +917,7 @@ def getToken(file, token):
                 estado = 'REPITA'
                 
         #########################
-            pass
+
         elif estado == 'CB':
             
             if char == 'o':
@@ -836,7 +944,7 @@ def getToken(file, token):
 
             
         #########################
-            pass
+
         elif estado == 'CD':
             
             if char in ID:
@@ -845,7 +953,7 @@ def getToken(file, token):
             else:
                 estado = 'ENQUANTO'
         #########################
-            pass
+
         elif estado == 'CE':
 
             if char in ID:
@@ -854,11 +962,158 @@ def getToken(file, token):
             else:
                 estado = 'FUNCTION'
         #########################
-            pass
+
+        elif estado == 'INT':
+            if nro_token == token:
+                return ('int', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
+        
+        #########################
+        
+        elif estado == 'CMNT':
+            strAux = ''
+            estado = 'A'
+        
+        #########################
+                
+        elif estado == 'CHAR':
+            if nro_token == token:
+                return ('faca', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
+        
+        #########################
+        elif estado == 'FACA':
+            if nro_token == token:
+                return ('faca', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
+        
+        #########################    
+           
+        elif estado == 'ENTAO':
+            if nro_token == token:
+                return ('entao', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
+        
+        #########################
+        
+        elif estado == 'ENQUANTO':
+            if nro_token == token:
+                return ('enquanto', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A' 
+
+        
+        #########################
+        
+        elif estado == 'SENAO':
+            if nro_token == token:
+                return ('senao', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+                
+        ##########################
+        elif estado == 'SE':
+            if nro_token == token:
+                return ('se', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+            
+        ###########################
+        elif  estado == 'ATE':
+            if nro_token == token:
+                return ('se', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+        
+        #########################
+        
+        elif estado == 'REPITA':
+            if nro_token == token:
+                return ('repita', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+        
+        #########################
+        
+        elif estado == 'FUNCTION':
+            if nro_token == token:
+                return ('function', NULL, (linha, coluna))
+            else:
+                nro_token += 1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+        
+        
+        ############ ESTADO DE NUMERO INTEIRO ###########
+        
+        
+        elif estado == 'NINT':
+            if nro_token == token:
+                nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                return ('NROINT', nro_elem, (linha, coluna))
+            else:
+                nro_token +=1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+        
+        ############ ESTADO DE EXPONENCIAL #############
+        
+        elif estado == 'EXP':
+           if nro_token == token:
+                nro_elem= addTable(strAux[:-1], TABELA_SIMBOLO)
+                return ('EXP', nro_elem, (linha, coluna))
+           else:
+                nro_token +=1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+        
+        ########## ESTADO FRAÇÃO #############
+        
+        elif estado == 'FRAC':
+            if nro_token == token:
+                nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                return ('FRAC', nro_elem, (linha, coluna))
+            else:
+                nro_token +=1
+                strAux = ''
+                estado = 'A'
+                look_ahead = True
+          
+        #########################
+        
         else :
-            print("Estado não reconhecido.")
+            return ('ERR', 'ERR', (linha,coluna))
 
-
+    return('EOF', 'ERR', (linha, coluna))
 
 
         

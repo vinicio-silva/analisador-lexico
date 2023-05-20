@@ -1,1 +1,8 @@
 teste
+123E+59
+function
+1234
+programa
+/* isso eh um comentario */
+float
+int
