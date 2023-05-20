@@ -39,7 +39,7 @@ def getToken(file, token):
         #### Estado Inicial ####
         
         if estado == 'A':
-            if char not in CHAR_RESERVED and char not in SPECIAL_CHAR:
+            if char in ['b', 'd', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 't', 'u', 'v', 'w', 'x', 'y', 'z', '_']:
                 estado = 'C'
                 
             elif char == 'a':
@@ -980,7 +980,7 @@ def getToken(file, token):
         
         elif estado == 'CMNT':
             strAux = ''
-            estado = 'A'
+            estado = 'A'  
         
         #########################
                 
