@@ -8,13 +8,14 @@ def main():
     # WHILE DO ANALISADOR
     while 1: 
         (token, atributo, (linha, coluna)) = getToken(arquivo, i)
+        if token == 'EOF':
+            print('Fim do arquivo')
+            break
         if token == 'ERR':
             print('Erro na linha: ' + str(linha) + ' e coluna: ' + str(coluna))
             break
         if atributo == NULL:
-            atributo = 'Atributo nulo'
-        if token == 'EOF':
-            break
+            atributo = 'Atributo nulo'        
 
         print("Nome: " + str(token) + ', ' + 'Atributo: ' + str(atributo))
         cadeia = cadeia + [(token, atributo)]

@@ -104,7 +104,6 @@ def getToken(file, token):
             elif char == '.':
                 estado = 'ERR'
             
-
             elif char == ':':
                 if nro_token == token:
                     return (':', NULL, (linha, coluna))
@@ -176,6 +175,11 @@ def getToken(file, token):
             else:
                 estado = 'ERR'
                 
+        
+        elif estado == 'ERR':
+            if not char:
+                break
+            return ('ERR', 'ERR', (linha,coluna))
         ############ ESTADO B #############
            
         elif estado == 'B':
@@ -206,8 +210,7 @@ def getToken(file, token):
                 estado = 'AE'
             else:
                 estado = 'C'
-                
-            
+                            
         ############ ESTADO E #############
             
         elif estado == 'E':
@@ -278,27 +281,6 @@ def getToken(file, token):
                     strAux = ''
                     estado = 'A'
                     look_ahead = True
-            
-        ############# ESTADO L ############
-            
-
-        elif estado == 'L':
-            if nro_token == token:
-                return ('Operador Aritimético', '-', (linha, coluna))
-            else:
-                nro_token += 1
-                strAux = ''
-                estado = 'A'
-        
-        ############# ESTADO M ############
-            
-        elif estado == 'M':            
-            if nro_token == token:
-                return ('Operador Aritimético', '+', (linha, coluna))
-            else:
-                nro_token += 1
-                strAux = ''
-                estado = 'A'
         
         ############ ESTADO N #############
             
@@ -310,23 +292,10 @@ def getToken(file, token):
                     nro_token += 1
                     strAux = ''
                     estado = 'A'
-                    look_ahead = True
-                
+                    look_ahead = True                
             else:
                 estado = 'AQ'                      
-        
-        ########### ESTADO O ##############
-            
-        elif estado == 'O':            
-            if nro_token == token:
-                return ('Operador Aritimético', '*', (linha, coluna))
-            else:
-                nro_token += 1
-                strAux = ''
-                estado = 'A'
-            
 
-            
         ############ ESTADO Q #############
             
         elif estado == 'Q':
@@ -359,19 +328,6 @@ def getToken(file, token):
                     strAux = ''
                     estado = 'A' 
                     look_ahead = True
-                    
-            
-        
-        ############# ESTADO V ############
-            
-        elif estado == 'V':            
-            if nro_token == token:
-                return ('(', NULL, (linha, coluna))
-            else:
-                nro_token += 1
-                strAux = ''
-                estado = 'A'
-    
         
         ############# ESTADO Z ############
             
@@ -416,10 +372,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
                 look_ahead = True 
-                
-
-
-        
+                        
         #########################
 
         elif estado == 'AD':
@@ -532,7 +485,6 @@ def getToken(file, token):
                 nro_token += 1
                 strAux = ''
                 estado = 'A' 
-
             
         #########################
             
@@ -938,10 +890,6 @@ def getToken(file, token):
                     look_ahead = True
                     
         #########################
-                
-
-        else :
-            return ('ERR', 'ERR', (linha,coluna))
 
     return('EOF', 'ERR', (linha, coluna))
 
