@@ -1,13 +1,14 @@
 from analisadorlexico import *
 
 def main():
-    arquivo = open("codigo.txt", "r")
+    file = open("codigo.txt", "r")
+    
     cadeia = []
     i = 1
 
-    # WHILE DO ANALISADOR
     while 1: 
-        (token, atributo, (linha, coluna)) = getToken(arquivo, i)
+        (token, atributo, (linha, coluna)) = getToken(file, i)
+        
         if token == 'EOF':
             print('Fim do arquivo')
             break
@@ -18,12 +19,16 @@ def main():
             atributo = 'Atributo nulo'        
 
         print("Nome: " + str(token) + ', ' + 'Atributo: ' + str(atributo))
-        cadeia = cadeia + [(token, atributo)]
-        i += 1
-        arquivo.seek(0,0)
         
-    print(cadeia)        
-    arquivo.close()
+        cadeia = cadeia + [(token, atributo)]
+        
+        i += 1
+        
+        file.seek(0,0)
+        
+    print(cadeia)    
+        
+    file.close()
 
 if __name__ == "__main__":
     main()
