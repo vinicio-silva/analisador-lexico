@@ -1,5 +1,6 @@
 from asyncio.windows_events import NULL
 import string
+import json
 
 TABELA_SIMBOLO = open("tabela-simbolo.txt", "r+")
 LETRA_LOWER = list(string.ascii_lowercase)
@@ -8,20 +9,22 @@ NUMBER = [str(num) for num in range(9)]
 CHAR_RESERVED = ['a', 'c', 'e', 'f', 'i', 'r', 's']
 ID = LETRA_UPPER + LETRA_LOWER + NUMBER + ['_']
 
-token = []
-token.append(('nome', 'atributo'))
-
-
-
-def addTable(char, table):   # Função para inserir na tabela de simbolos
+def addTable(tipoToken,  lexema, valor, tipoDado, table):   # Função para inserir na tabela de simbolos
+    object = {
+        'TipoToken': tipoToken, 
+        'Lexema': lexema,
+        'Valor': valor,
+        'TipoDado': tipoDado
+    }
+    strObject = json.dumps(object)
     nro_elem = 1
     table.seek(0, 0)
     for linha in table:
-        if (str(char+'\n')) == linha or str(char) == linha:
+        if (strObject+'\n') == linha or strObject == linha:
             return nro_elem
         nro_elem += 1
 
-    table.writelines(char+"\n")
+    table.writelines(strObject+'\n')
     return nro_elem
 
 def getToken(file, token):
@@ -33,15 +36,13 @@ def getToken(file, token):
     strAux = ''
     
     while 1:        
-        #### Estado Inicial ####
-        
+        #### Estado Inicial ####        
         if estado == 'A':
             if look_ahead is False:
                 char = file.read(1) 
                 coluna +=1
             strAux = strAux + str(char)
             look_ahead = False
-
             if char == 'a':
                 estado = 'B'
 
@@ -137,6 +138,7 @@ def getToken(file, token):
         elif estado == 'B':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 't':
                 estado = 'AD'         
             else:
@@ -147,6 +149,7 @@ def getToken(file, token):
         elif estado == 'C':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char in ID:
                 estado = 'C'
             else:
@@ -157,6 +160,7 @@ def getToken(file, token):
         elif estado == 'D':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'h':
                 estado = 'AE'
             else:
@@ -167,6 +171,7 @@ def getToken(file, token):
         elif estado == 'E':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'n':
                 estado = 'AF'          
             else:
@@ -177,7 +182,8 @@ def getToken(file, token):
                     
         elif estado == 'F':   
             char = file.read(1)
-            strAux = strAux + str(char)         
+            strAux = strAux + str(char)     
+                
             if char == 'a':
                 estado = 'AG'                
             elif char == 'l':
@@ -191,7 +197,8 @@ def getToken(file, token):
             
         elif estado == 'G':   
             char = file.read(1)
-            strAux = strAux + str(char)         
+            strAux = strAux + str(char)     
+                
             if char == 'n':
                 estado = 'AJ'
             else:
@@ -202,6 +209,7 @@ def getToken(file, token):
         elif estado == 'H':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'e':
                 estado = 'AK'
             else:
@@ -211,7 +219,8 @@ def getToken(file, token):
             
         elif estado == 'I':
             char = file.read(1)
-            strAux = strAux + str(char)           
+            strAux = strAux + str(char)
+                       
             if char == 'e':
                 estado = 'AL'
             else:
@@ -222,10 +231,10 @@ def getToken(file, token):
         elif estado == 'J':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == '>':
                 if nro_token == token:
                     estado = 'AN'
-
                 else:
                     nro_token += 1
                     strAux = ''
@@ -233,7 +242,6 @@ def getToken(file, token):
             elif char == '=':
                 if nro_token == token:
                     estado = 'AM'
-
                 else:
                     nro_token += 1
                     strAux = ''
@@ -241,7 +249,6 @@ def getToken(file, token):
             else:                 
                 if nro_token == token:
                     estado = 'LT'
-
                 else:
                     nro_token += 1
                     strAux = ''
@@ -253,6 +260,7 @@ def getToken(file, token):
         elif estado == 'N':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char !=  '*':
                 if nro_token == token:
                     return ('Operador Aritimético', '/', (linha, coluna))
@@ -269,10 +277,10 @@ def getToken(file, token):
         elif estado == 'Q':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char != '=':
                 if nro_token == token:
                     estado = 'ATT'
-
                 else:
                     nro_token += 1
                     strAux = ''
@@ -289,7 +297,6 @@ def getToken(file, token):
             if char == '=':
                 if nro_token == token:
                     estado = 'GE'
-
                 else:
                     nro_token += 1
                     strAux = ''
@@ -297,7 +304,6 @@ def getToken(file, token):
             else:                
                 if nro_token == token:
                     estado = 'GT'
-
                 else:
                     nro_token += 1
                     strAux = ''
@@ -311,8 +317,7 @@ def getToken(file, token):
             strAux = strAux + str(char)
 
             if char == 'E':
-                estado = 'AR'
-            
+                estado = 'AR'            
             elif char == '.':
                 estado = 'AS'
             elif char in NUMBER:
@@ -320,7 +325,6 @@ def getToken(file, token):
             else:
                 if nro_token == token:
                     estado = 'NINT'
-
                 else:
                     nro_token +=1
                     strAux = ''
@@ -332,9 +336,9 @@ def getToken(file, token):
         elif estado == 'AA':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char in LETRA_LOWER or char in LETRA_UPPER:
                 estado = 'AT'
-
             else:
                 estado = 'ERR'
             
@@ -343,6 +347,7 @@ def getToken(file, token):
         elif estado == 'AB':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == ' ' or char == '\n' or char == '\t':
                 if char == '\n':
                     linha += 1
@@ -357,6 +362,7 @@ def getToken(file, token):
         elif estado == 'AD':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'e':
                 estado = 'AV'
             else:
@@ -367,9 +373,9 @@ def getToken(file, token):
         elif estado == 'AE':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'a':
                 estado = 'AW'
-
             else:
                 estado = 'C'
                 
@@ -378,6 +384,7 @@ def getToken(file, token):
         elif estado == 'AF':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'q':
                 estado = 'AY'
             elif char == 't':
@@ -390,6 +397,7 @@ def getToken(file, token):
         elif estado == 'AG':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'c':
                 estado = 'AZ'
             else:
@@ -400,6 +408,7 @@ def getToken(file, token):
         elif estado == 'AH':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'o':
                 estado = 'BA'
             else:
@@ -410,6 +419,7 @@ def getToken(file, token):
         elif estado == 'AI':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'n':
                 estado = 'BB'
             else:
@@ -420,6 +430,7 @@ def getToken(file, token):
         elif estado == 'AJ':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 't':
                 estado = 'BC'
             else:
@@ -430,6 +441,7 @@ def getToken(file, token):
         elif estado == 'AK':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'p':
                 estado = 'BD'
             else:
@@ -447,47 +459,13 @@ def getToken(file, token):
                     estado = 'SE'
             else:
                 estado = 'C'
-                
-        ########### RELOPS <- ARRUMAR  ###########
-    
-        elif estado == 'AM':
-            char = file.read(1)
-            strAux = strAux + str(char)
-            if nro_token == token:
-                return ('relop', 'LE', (linha, coluna))
-            else:
-                nro_token += 1
-                strAux = ''
-                estado = 'A'
-                look_ahead = True
-            
-        elif estado == 'AN':  
-            char = file.read(1)
-            strAux = strAux + str(char)          
-            if nro_token == token:
-                return  ('relop', 'NE', (linha, coluna))
-            else:
-                nro_token += 1
-                strAux = ''
-                estado = 'A'
-                look_ahead = True
-            
-            
-        elif estado == 'AO': 
-            char = file.read(1)
-            strAux = strAux + str(char)
-            if nro_token == token:
-                return  ('relop', 'EQ', (linha, coluna))
-            else:
-                nro_token += 1
-                strAux = ''
-                estado = 'A' 
-            
+                            
         #########################
             
         elif estado == 'AQ':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == '*':
                 estado ='BF'
             else:
@@ -498,12 +476,11 @@ def getToken(file, token):
         elif estado == 'AR':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == '+' or char == '-':
                 estado = 'BG'
-
             elif char in NUMBER:
                 estado = 'BH'
-
             else:
                 estado = 'ERR'
 
@@ -512,9 +489,9 @@ def getToken(file, token):
         elif estado == 'AS':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char in NUMBER:
                 estado = 'BI'
-
             else:
                 estado = 'ERR'
                 
@@ -523,9 +500,9 @@ def getToken(file, token):
         elif estado == 'AT':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == "'":
                 estado = 'BJ'
-
             else:
                 estado = 'ERR'       
         
@@ -534,6 +511,7 @@ def getToken(file, token):
         elif estado == 'AV':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char not in ID:                
                 estado = 'ATE'
             else:
@@ -544,6 +522,7 @@ def getToken(file, token):
         elif estado == 'AW':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'r':
                 estado = 'BK'                
             else:
@@ -554,6 +533,7 @@ def getToken(file, token):
         elif estado == 'AX':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'a':
                 estado = 'BL'
             else:
@@ -564,6 +544,7 @@ def getToken(file, token):
         elif estado == 'AY':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'u':
                 estado = 'BM'
             else:
@@ -573,6 +554,7 @@ def getToken(file, token):
         elif estado == 'AZ':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'a':
                 estado = 'BN'
             else:
@@ -583,6 +565,7 @@ def getToken(file, token):
         elif estado == 'BA':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'a':
                 estado = 'BO'
             else:
@@ -593,15 +576,18 @@ def getToken(file, token):
         elif estado == 'BB':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'c':
                 estado = 'BP'
             else:
                 estado = 'C'
+                
         #########################
 
         elif estado == 'BC':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char not in ID:
                 estado = 'INT'
             else:
@@ -612,6 +598,7 @@ def getToken(file, token):
         elif estado == 'BD':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'i':
                 estado = 'BQ'
             else:
@@ -621,6 +608,7 @@ def getToken(file, token):
         elif estado == 'BE':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'a':
                 estado = 'BR'
             else:
@@ -631,6 +619,7 @@ def getToken(file, token):
         elif estado == 'BF':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == '/':
                 estado = 'CMNT'                 
             else:
@@ -641,6 +630,7 @@ def getToken(file, token):
         elif estado == 'BG':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char in NUMBER:
                 estado = 'BH'
             else:
@@ -651,6 +641,7 @@ def getToken(file, token):
         elif estado == 'BH':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char in NUMBER:
                 estado = 'BH'
             else:
@@ -661,6 +652,7 @@ def getToken(file, token):
         elif estado == 'BI':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char in NUMBER:
                 estado = 'BI'
             elif char == '.':
@@ -673,11 +665,9 @@ def getToken(file, token):
         #########################
         
         elif estado == 'BJ':
-            char = file.read(1)
-            strAux = strAux + str(char)
             if nro_token == token:
-                nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
-                return ('letra', nro_elem, (linha, coluna))
+                nro_elem = addTable('letra', strAux, '-', 'char', TABELA_SIMBOLO) 
+                return ('Letra', nro_elem, (linha, coluna))
             else:
                 nro_token +=1
                 strAux = ''
@@ -688,6 +678,7 @@ def getToken(file, token):
         elif estado == 'BK':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char not in ID:
                 estado = 'CHAR' 
             else:
@@ -698,6 +689,7 @@ def getToken(file, token):
         elif estado == 'BL':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'o':
                 estado = 'BT'
             else:
@@ -708,6 +700,7 @@ def getToken(file, token):
         elif estado == 'BM':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'a':
                 estado = 'BU'
             else:
@@ -718,6 +711,7 @@ def getToken(file, token):
         elif estado == 'BN':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char not in ID:
                 estado = 'FACA'    
             else:
@@ -728,6 +722,7 @@ def getToken(file, token):
         elif estado == 'BO':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 't':
                 estado = 'BV'
             else:
@@ -738,6 +733,7 @@ def getToken(file, token):
         elif estado == 'BP':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 't':
                 estado = 'BW'
             else:
@@ -748,51 +744,62 @@ def getToken(file, token):
         elif estado == 'BQ':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 't':
                 estado = 'BX'
             else:
                 estado = 'C'
+                
         #########################
 
         elif estado == 'BR':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'o':
                 estado = 'BY'
             else:
                 estado = 'C'
+                
         #########################
         
         elif estado == 'BS':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 't':
                 estado = 'CB'
             else:
                 estado = 'C'
+                
         #########################
         
         elif estado == 'BT':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char not in ID:
                 estado = 'ENTAO'
             else:
                 estado = 'C'
+                
         #########################
 
         elif estado == 'BU':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'n':
                 estado = 'BS'
             else:
                 estado = 'C'
+                
         #########################
         
         elif estado == 'BV':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char not in ID:
                 estado = 'FLOAT'
             else:
@@ -803,6 +810,7 @@ def getToken(file, token):
         elif estado == 'BW':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'i':
                 estado = 'BZ'
             else:
@@ -813,6 +821,7 @@ def getToken(file, token):
         elif estado == 'BX':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'a':
                 estado = 'CA'
             else:
@@ -823,6 +832,7 @@ def getToken(file, token):
         elif estado == 'BY':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char not in ID:
                 estado = 'SENAO'
             else:
@@ -833,15 +843,18 @@ def getToken(file, token):
         elif estado == 'BZ':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'o':
                 estado = 'CC'
             else:
                 estado = 'C'
+                
         #########################
 
         elif estado == 'CA':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char in ID:
                 estado = 'C'
             else:
@@ -852,6 +865,7 @@ def getToken(file, token):
         elif estado == 'CB':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char == 'o':
                 estado = 'CD'
             else:
@@ -867,7 +881,6 @@ def getToken(file, token):
             else:
                 estado = 'C'
 
-            
         #########################
 
         elif estado == 'CD':
@@ -878,25 +891,28 @@ def getToken(file, token):
                 estado = 'C'
             else:
                 estado = 'ENQUANTO'
+                
         #########################
 
         elif estado == 'CE':
             char = file.read(1)
             strAux = strAux + str(char)
+            
             if char in ID:
                 estado = 'C'
             else:
-                estado = 'FUNCTION'
-                    
+                estado = 'FUNCTION'                    
 
-            # Estados finais (?)
+        ################ Estados finais ################
 
-        ######## Estado final do ID ########
+        # Estado final ID
 
         elif estado == 'AC':
             if nro_token == token:
-                print('a strAux eh: ' + strAux)
-                nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                if char == '':
+                    nro_elem = addTable('ID', strAux, '-', '-', TABELA_SIMBOLO)
+                else:
+                    nro_elem = addTable('ID', strAux[:-1], '-', '-', TABELA_SIMBOLO)                
                 return ('ID', nro_elem, (linha, coluna))
             else:
                 nro_token += 1
@@ -906,11 +922,14 @@ def getToken(file, token):
 
         ######## Estado final numeros ########
         
-        # Nro Inteiro
+        # Numero inteiro
 
         elif estado == 'NINT':
             if nro_token == token:
-                nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                if char == '':
+                    nro_elem = addTable('Numero', strAux, strAux, 'INT', TABELA_SIMBOLO)
+                else:
+                    nro_elem = addTable('Numero', strAux[:-1], strAux[:-1], 'INT', TABELA_SIMBOLO)
                 return ('NROINT', nro_elem, (linha, coluna))
             else:
                 nro_token += 1
@@ -918,12 +937,14 @@ def getToken(file, token):
                 estado = 'A'
                 look_ahead = True
             
-
-        # nro Frac
+        # Numero fracional
 
         elif estado == 'FRAC':
             if nro_token == token:
-                nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                if char == '':
+                    nro_elem = addTable('Fracao', strAux, strAux, 'FLOAT', TABELA_SIMBOLO)
+                else:
+                    nro_elem = addTable('Fracao', strAux[:-1], strAux[:-1], 'FLOAT', TABELA_SIMBOLO)
                 return ('frac', nro_elem, (linha, coluna))
             else:
                 nro_token += 1
@@ -931,12 +952,14 @@ def getToken(file, token):
                 estado = 'A'
                 look_ahead = True
 
-
-        # nro Exp
+        # Numero Exponencial
 
         elif estado == 'EXP':
             if nro_token == token:
-                nro_elem = addTable(strAux[:-1], TABELA_SIMBOLO)
+                if char == '':
+                    nro_elem = addTable('Exponencial', strAux, strAux, 'FLOAT', TABELA_SIMBOLO)
+                else:
+                    nro_elem = addTable('Exponencial', strAux[:-1], strAux[:-1], 'FLOAT', TABELA_SIMBOLO)
                 return ('exp', nro_elem, (linha, coluna))
             else:
                 nro_token += 1
@@ -1085,6 +1108,7 @@ def getToken(file, token):
         ####### RELOP #######
 
         # LT
+        
         elif estado == 'LT':
             if nro_token == token:
                  return ('RELOP', 'LT', (linha, coluna))
@@ -1094,8 +1118,8 @@ def getToken(file, token):
                 estado = 'A'
                 look_ahead = True
            
-
         # NE
+        
         elif estado == 'AN':
             if nro_token == token:
                 return ('RELOP', 'NE', (linha, coluna))
@@ -1103,6 +1127,7 @@ def getToken(file, token):
                 nro_token += 1
                 strAux = ''
                 estado = 'A'
+                
         # LE
 
         elif estado == 'AM':
@@ -1144,9 +1169,9 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-        ####### OPERADORES ARITMETICOS #######
+        ####### Operadores Aritméticos #######
 
-        # SUBTRACAO
+        # Subtração
 
         elif estado == 'L':
             if nro_token == token:
@@ -1157,7 +1182,7 @@ def getToken(file, token):
                 estado = 'A'
             
 
-        # SOMA
+        # Soma
 
         elif estado == 'M':
             if nro_token == token:
@@ -1167,7 +1192,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-        # DIVISAO
+        # Divisão
         
         elif estado == 'DIV':
             if nro_token == token:
@@ -1178,7 +1203,7 @@ def getToken(file, token):
                 estado = 'A'
                 look_ahead = True
 
-        # MULTIPLICACAO
+        # Multiplicação
 
         elif estado == 'O':
             if nro_token == token:
@@ -1188,8 +1213,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-
-        # EXPONENCIAL
+        # Exponêncial
 
         elif estado == 'P':
             if nro_token == token:
@@ -1199,9 +1223,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-        
-
-        # ATRIBUICAO
+        # Atribuição
 
         elif estado == 'ATT':
             if nro_token == token:
@@ -1212,11 +1234,9 @@ def getToken(file, token):
                 estado = 'A'
                 look_ahead = True
 
+        ####### Símbolos Normais ##########
 
-
-        ####### SIMBOLOS NORMAIS ##########
-
-        # DOIS PONTOS
+        # Dois pontos
 
         elif estado == 'S':
             if nro_token == token:
@@ -1225,9 +1245,9 @@ def getToken(file, token):
                 nro_token += 1
                 strAux = ''
                 estado = 'A'
-            
-
-        # VIRGULA
+                
+        # Vírgula
+        
         elif estado == 'U':
             if nro_token == token:
                 return (',', NULL, (linha, coluna))
@@ -1236,7 +1256,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-        # PONTO E VIRGULA
+        # Ponto e Vírgula
 
         elif estado == 'T':
             if nro_token == token:
@@ -1246,9 +1266,8 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-        # PARENTESES
-
-        # ABRE PARENTESES
+        # Abre Parenteses
+        
         elif estado == 'V':
             if nro_token == token:
                 return ('(', NULL, (linha, coluna))
@@ -1257,7 +1276,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-        # FECHA PARENTESES
+        # Fecha Parenteses
 
         elif estado == 'W':
             if nro_token == token:
@@ -1267,10 +1286,8 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-
-        # CHAVES
-
-        # ABRE CHAVES
+        # Abre Chaves
+        
         elif estado == 'X':
             if nro_token == token:
                 return ('{', NULL, (linha, coluna))
@@ -1279,7 +1296,7 @@ def getToken(file, token):
                 strAux = ''
                 estado = 'A'
 
-        # FECHA CHAVES
+        # Fecha Chaves
 
         elif estado == 'Y':
             if nro_token == token:
