@@ -945,7 +945,7 @@ def getToken(file, token):
                     nro_elem = addTable('Fracao', strAux, strAux, 'FLOAT', TABELA_SIMBOLO)
                 else:
                     nro_elem = addTable('Fracao', strAux[:-1], strAux[:-1], 'FLOAT', TABELA_SIMBOLO)
-                return ('frac', nro_elem, (linha, coluna))
+                return ('FRAC', nro_elem, (linha, coluna))
             else:
                 nro_token += 1
                 strAux = ''
@@ -960,7 +960,7 @@ def getToken(file, token):
                     nro_elem = addTable('Exponencial', strAux, strAux, 'FLOAT', TABELA_SIMBOLO)
                 else:
                     nro_elem = addTable('Exponencial', strAux[:-1], strAux[:-1], 'FLOAT', TABELA_SIMBOLO)
-                return ('exp', nro_elem, (linha, coluna))
+                return ('EXP', nro_elem, (linha, coluna))
             else:
                 nro_token += 1
                 strAux = ''

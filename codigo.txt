@@ -1,0 +1,22 @@
+function programa {
+    int: x=1;
+    float: y=2.5, z=3E+2;
+    char: letra='a'; 
+    se (x > y) entao {
+        enquanto (y < z) {
+            faca {
+                z-1;
+                z+2;
+            }
+        }
+        /*testando comentario*/
+        repita {
+            x >= y;
+            x <= z;
+            y <> x;
+            x*y;
+            x^y;
+            x/y;
+        } ate (letra == 'a')
+    }
+}
